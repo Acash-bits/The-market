@@ -18,7 +18,7 @@ def scrape_company_data(link,**tag):
         names = page.locator(f'div.{tag["Name"]}').all_text_contents()
         tickers = page.locator(f'div.{tag["Ticker"]}').all_text_contents()
         
-        # Print the results
+        # Print the results # Uncomment to print details getting scrapped
         # for i, (name, ticker) in enumerate(zip(names, tickers), 1):
         #     print(f"\n{i}.Company Name : {name.strip()}")
         #     print(f"\tCompany Ticker: {ticker.strip().upper()}")
