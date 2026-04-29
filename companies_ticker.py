@@ -1,25 +1,23 @@
-from bs4 import BeautifulSoup
-import requests
+from playwright.sync_api import sync_playwright
 
-# Link from which data is extracted
-def check_link(link):
-    """Checking the status of link"""
-    response = requests.get(link)
-    return response
+def run():
+    """Scraping the company ticker from the website"""
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
 
-def scrape_website():
-    """Scraping the data from the link"""
-    try:
-        soup = BeautifulSoup(check_link(link).text, 'html.parser')
-        company_names = soup.find_all('div', class_ = 'company_name')
-        ticker_items = soup.find_all('div', class_ = 'company_code')
-        print(soup.prettify()[:2000])
-        for company_name, ticker_item in zip(company_names, ticker_items):
-            print(f"\nCompany Name: {company_name.text}")
-            print(f"Ticker Name : {ticker_item.text}")
-    except Exception as e:
-        print(f"ERROR: {e}")
+        # Navigate to the target URL
+        page.goto("https://companiesmarketcap.com")
 
-link = "https://companiesmarketcap.com/"
-print(check_link(link))
-scrape_website()
+        # Wait for elements to appear
+        page.wait_for_selector('div[class="company-name"]')
+        # Extract data: Find all elements of company_name class
+        company_names = page.locator('div[class="company-name"]').all_text_contents()
+        # Print the results
+        for i, company_name in enumerate(company_names, 1):
+            print(f"\n{i}.Company Name : {company_name}")
+        
+        browser.close()
+
+if __name__ == "__main__":
+    run()
