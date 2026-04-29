@@ -15,15 +15,29 @@ def scrape_company_data(link,**tag):
         page.wait_for_selector(selector)
 
         # Extract data: Find all elements of company_name class
-        names = page.locator(f"div.{tag["Name"]}").all_text_contents()
-        tickers = page.locator(f"div.{tag["Ticker"]}").all_text_contents()
-
+        names = page.locator(f'div.{tag["Name"]}').all_text_contents()
+        tickers = page.locator(f'div.{tag["Ticker"]}').all_text_contents()
+        
         # Print the results
-        for i, (name, ticker) in enumerate(zip(names, tickers), 1):
-            print(f"\n{i}.Company Name : {name.strip()}")
-            print(f"\tCompany Ticker: {ticker.strip().upper()}")
+        # for i, (name, ticker) in enumerate(zip(names, tickers), 1):
+        #     print(f"\n{i}.Company Name : {name.strip()}")
+        #     print(f"\tCompany Ticker: {ticker.strip().upper()}")
         
         browser.close()
+        return names, tickers
+
+def financial_details(tickers):
+    """Getting the financial details of the company using yfinance"""
+    for i, ticker in enumerate(tickers,1):
+        dat = yf.Ticker(f"{ticker}")
+        print(f"\n{i}. Gathering data for company {ticker}")
+        print(f"Company Name: {dat.info.get('longName', 'N/A')}")
+        print(f"Revenue: {dat.info.get('totalRevenue', 'N/A')}")
+        print(f"Market Cap: {dat.info.get('marketCap', 'N/A')}")
+        print(f"Company HQ City: {dat.info.get('city', 'N/A')}")
+        print(f"Company HQ State: {dat.info.get('state', 'N/A')}")
+        print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
+    
 
 # Website Link
 website_link = "https://companiesmarketcap.com/"
@@ -32,4 +46,5 @@ company_tags = {
     "Ticker" : "company-code"
 }
 
-scrape_company_data(website_link, **company_tags)
+company_name, tickers = scrape_company_data(website_link, **company_tags)
+financial_details(tickers)
