@@ -1,23 +1,35 @@
 from playwright.sync_api import sync_playwright
+import yfinance as yf
 
-def run():
-    """Scraping the company ticker from the website"""
+def scrape_company_data(link,**tag):
+    """Scraping the company name & ticker from the website"""
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         # Navigate to the target URL
-        page.goto("https://companiesmarketcap.com")
+        page.goto(link)
 
         # Wait for elements to appear
-        page.wait_for_selector('div[class="company-name"]')
+        selector = f"div.{tag['Name']}, div.{tag['Ticker']}"
+        page.wait_for_selector(selector)
+
         # Extract data: Find all elements of company_name class
-        company_names = page.locator('div[class="company-name"]').all_text_contents()
+        names = page.locator(f"div.{tag["Name"]}").all_text_contents()
+        tickers = page.locator(f"div.{tag["Ticker"]}").all_text_contents()
+
         # Print the results
-        for i, company_name in enumerate(company_names, 1):
-            print(f"\n{i}.Company Name : {company_name}")
+        for i, (name, ticker) in enumerate(zip(names, tickers), 1):
+            print(f"\n{i}.Company Name : {name.strip()}")
+            print(f"\tCompany Ticker: {ticker.strip().upper()}")
         
         browser.close()
 
-if __name__ == "__main__":
-    run()
+# Website Link
+website_link = "https://companiesmarketcap.com/"
+company_tags = {
+    "Name" : "company-name",
+    "Ticker" : "company-code"
+}
+
+scrape_company_data(website_link, **company_tags)
