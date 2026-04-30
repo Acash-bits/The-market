@@ -85,9 +85,6 @@ company_tags = {
     "Ticker" : "company-code"
 }
 
-# company_name, tickers = scrape_company_data(website_link, **company_tags)
-# financial_details(tickers)
-
 pages = get_total_pages(website_link)
 print(pages)
 
