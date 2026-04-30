@@ -1,7 +1,7 @@
 from playwright.sync_api import sync_playwright
 import yfinance as yf
 
-def total_pages():
+def get_total_pages(link):
     """Getting total number of pages from the website"""
     try:
         with sync_playwright() as p:
@@ -9,7 +9,6 @@ def total_pages():
             page = browser.new_page()
             
             # Navigate to target url
-            link = "https://companiesmarketcap.com/"
             page.goto(link)
             
             # Wait for elements to appear
@@ -26,16 +25,16 @@ def total_pages():
     except Exception as e:
         print(f"Error Code: {e}")
 
-def website_link(total_pages):
+def get_all_page_links(link,total_pages):
     """Scraping every page of the website till final page"""
     try:
-        for page_number in range(total_pages):
-            link = f"https://companiesmarketcap.com/page/{page_number}/"
-            return link
+        for page_number in range(1,total_pages+1):
+            page_link = f"{link}{page_number}/"
+            print(page_link)
     except Exception as e:
         print(f"Error scraping page number {page_number}: {e}")
 
-def scrape_company_data(link,**tag):
+def get_company_data(link,**tag):
     """Scraping the company name & ticker from the website"""
     try:
         with sync_playwright() as p:
@@ -63,7 +62,7 @@ def scrape_company_data(link,**tag):
     except Exception as e:
         print(f"ERROR OCCURRED: {Exception} ")
 
-def financial_details(tickers):
+def get_financial_details(tickers):
     """Getting the financial details of the company using yfinance"""
     try:
         for i, ticker in enumerate(tickers,1):
@@ -89,4 +88,8 @@ company_tags = {
 # company_name, tickers = scrape_company_data(website_link, **company_tags)
 # financial_details(tickers)
 
-print(total_pages())
+pages = get_total_pages(website_link)
+print(pages)
+
+page_link = (get_all_page_links(website_link,pages))
+print(page_link)
