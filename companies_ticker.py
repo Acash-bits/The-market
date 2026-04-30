@@ -1,6 +1,40 @@
 from playwright.sync_api import sync_playwright
 import yfinance as yf
 
+def total_pages():
+    """Getting total number of pages from the website"""
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            
+            # Navigate to target url
+            link = "https://companiesmarketcap.com/"
+            page.goto(link)
+            
+            # Wait for elements to appear
+            target = 'span[class="companies-count font-weight-bold"]'
+            page.wait_for_selector(target)
+            
+            # Extract data: Find the count of companies
+            company_count = page.locator(target).all_text_contents()
+            # Replacing comma from company count number
+            count = int(company_count[0].replace(",",""))
+            # Counting total pages adding 1 to round off 
+            total_pages = int(count/100 +1)
+            return total_pages
+    except Exception as e:
+        print(f"Error Code: {e}")
+
+def website_link(total_pages):
+    """Scraping every page of the website till final page"""
+    try:
+        for page_number in range(total_pages):
+            link = f"https://companiesmarketcap.com/page/{page_number}/"
+            return link
+    except Exception as e:
+        print(f"Error scraping page number {page_number}: {e}")
+
 def scrape_company_data(link,**tag):
     """Scraping the company name & ticker from the website"""
     try:
@@ -34,6 +68,7 @@ def financial_details(tickers):
     try:
         for i, ticker in enumerate(tickers,1):
             dat = yf.Ticker(f"{ticker}")
+            # Printing the details of the ticker
             print(f"\n{i}. Gathering data for company {ticker}")
             print(f"Company Name: {dat.info.get('longName', 'N/A')}")
             print(f"Revenue: {dat.info.get('totalRevenue', 'N/A')}")
@@ -51,5 +86,7 @@ company_tags = {
     "Ticker" : "company-code"
 }
 
-company_name, tickers = scrape_company_data(website_link, **company_tags)
-financial_details(tickers)
+# company_name, tickers = scrape_company_data(website_link, **company_tags)
+# financial_details(tickers)
+
+print(total_pages())
