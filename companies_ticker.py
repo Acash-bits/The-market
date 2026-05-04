@@ -11,108 +11,124 @@ load_dotenv()
 website_link = "https://companiesmarketcap.com/"
 company_tags = {
     "Name" : "company-name",
-    "Ticker" : "company-code"
+    "Ticker" : "company-code",
+    "Company_count" : 'span[class="companies-count font-weight-bold"]'
 }
 
+class CompanyData:
+    """Getting data of listed companies and storing them in sql based on link"""
 
-def get_total_pages(link):
-    """Getting total number of pages from the website"""
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+    def __init__(self, link, tags):
+        """Initialize the link and tags attributes """
+        self.link = link
+        self.tags = tags
+
+    def get_total_pages(self):
+        """Getting total number of pages from the website"""
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
+                
+                # Navigate to target url
+                page.goto(self.link)
+                
+                # Wait for elements to appear
+                target = self.tags['Company_code']
+                page.wait_for_selector(target)
+                
+                # Extract data: Find the count of companies
+                company_count = page.locator(target).all_text_contents()
+                # Replacing comma from company count number
+                count = int(company_count[0].replace(",",""))
+                # Counting total pages adding 1 to round off 
+                total_pages = int(count/100 +1)
+                return total_pages
+        except Exception as e:
+            print(f"Error Code: {e}")
+
+    def get_all_page_links(self):
+        """Scraping every page of the website till final page"""
+        try:
+            # List to store page links
+            page_links = []
             
-            # Navigate to target url
-            page.goto(link)
+            # Getting the number of total pages
+            total_pages = self.get_total_pages()
             
-            # Wait for elements to appear
-            target = 'span[class="companies-count font-weight-bold"]'
-            page.wait_for_selector(target)
-            
-            # Extract data: Find the count of companies
-            company_count = page.locator(target).all_text_contents()
-            # Replacing comma from company count number
-            count = int(company_count[0].replace(",",""))
-            # Counting total pages adding 1 to round off 
-            total_pages = int(count/100 +1)
-            return total_pages
-    except Exception as e:
-        print(f"Error Code: {e}")
+            for page_number in range(1,total_pages+1):
+                page_link = f"{self.link}{page_number}/"
+                print(page_link)
+                page_links.append(page_link)
+                return page_links
+        except Exception as e:
+            print(f"Error scraping page number {page_number}: {e}")
 
-def get_all_page_links(link,total_pages):
-    """Scraping every page of the website till final page"""
-    try:
-        for page_number in range(1,total_pages+1):
-            page_link = f"{link}{page_number}/"
-            print(page_link)
-    except Exception as e:
-        print(f"Error scraping page number {page_number}: {e}")
+    def get_company_data(self):
+        """Scraping the company name & ticker from the website"""
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
 
-def get_company_data(link,**tag):
-    """Scraping the company name & ticker from the website"""
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+                # Navigate to the target URL
+                page.goto(self.link)
+                # Scraping company name and ticker
+                selector = f"div.{self.tags['Name']}, div.{self.tags['Ticker']}"
+                # Wait for elements to appear
+                page.wait_for_selector(selector)
 
-            # Navigate to the target URL
-            page.goto(link)
-            # Scraping company name and ticker
-            selector = f"div.{tag['Name']}, div.{tag['Ticker']}"
-            # Wait for elements to appear
-            page.wait_for_selector(selector)
+                # Extract data: Find all elements of company_name and ticker class
+                names = page.locator(f'div.{self.tags["Name"]}').all_text_contents()
+                tickers = page.locator(f'div.{self.tags["Ticker"]}').all_text_contents()
+                
+                # Print the results # Uncomment to print details getting scrapped
+                # for i, (name, ticker) in enumerate(zip(names, tickers), 1):
+                #     print(f"\n{i}.Company Name : {name.strip()}")
+                #     print(f"\tCompany Ticker: {ticker.strip().upper()}")
+                
+                browser.close()
+                return tickers
+        except Exception as e:
+            print(f"ERROR OCCURRED DURING SCRAPING: {e} ")
 
-            # Extract data: Find all elements of company_name and ticker class
-            names = page.locator(f'div.{tag["Name"]}').all_text_contents()
-            tickers = page.locator(f'div.{tag["Ticker"]}').all_text_contents()
-            
-            # Print the results # Uncomment to print details getting scrapped
-            # for i, (name, ticker) in enumerate(zip(names, tickers), 1):
-            #     print(f"\n{i}.Company Name : {name.strip()}")
-            #     print(f"\tCompany Ticker: {ticker.strip().upper()}")
-            
-            browser.close()
-            return names, tickers
-    except Exception as e:
-        print(f"ERROR OCCURRED DURING SCRAPING: {e} ")
+    def get_financial_details(tickers):
+        """Getting the financial details of the company using yfinance"""
+        try:
+            for i, ticker in enumerate(tickers,1):
+                dat = yf.Ticker(f"{ticker}")
+                # Printing the details of the ticker
+                print(f"\n{i}. Gathering data for company {ticker}")
+                print(f"Company Name: {dat.info.get('longName', 'N/A')}")
+                print(f"Revenue: {dat.info.get('totalRevenue', 'N/A')}")
+                print(f"Market Cap: {dat.info.get('marketCap', 'N/A')}")
+                print(f"Company HQ City: {dat.info.get('city', 'N/A')}")
+                print(f"Company HQ State: {dat.info.get('state', 'N/A')}")
+                print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
+                print(f"Company Sector: {dat.info.get('sector', 'N/A')}")
+                print(f"Company Industry: {dat.info.get('industry', "N/A")}")
+        except Exception as e:
+            print(f"Yahoo Finance Error: {e}")
 
-def get_financial_details(tickers):
-    """Getting the financial details of the company using yfinance"""
-    try:
-        for i, ticker in enumerate(tickers,1):
-            dat = yf.Ticker(f"{ticker}")
-            # Printing the details of the ticker
-            print(f"\n{i}. Gathering data for company {ticker}")
-            print(f"Company Name: {dat.info.get('longName', 'N/A')}")
-            print(f"Revenue: {dat.info.get('totalRevenue', 'N/A')}")
-            print(f"Market Cap: {dat.info.get('marketCap', 'N/A')}")
-            print(f"Company HQ City: {dat.info.get('city', 'N/A')}")
-            print(f"Company HQ State: {dat.info.get('state', 'N/A')}")
-            print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
-            print(f"Company Sector: {dat.info.get('sector', 'N/A')}")
-            print(f"Company Industry: {dat.info.get('industry', "N/A")}")
-    except Exception as e:
-        print(f"Yahoo Finance Error: {e}")
+    def store_data_in_sql():
+        """Storing the information received through yfinance"""
+        try:
+            # Establish the connection with data using environment variables
+            db_config = mysql.connector.connect(
+                host = os.getenv('MYSQL_HOST'),
+                database = os.getenv('MYSQL_DATABASE'),
+                user = os.getenv("MYSQL_USER"),
+                password = int(os.getenv("MYSQL_PASS"))
+            )
 
-def store_data_in_sql():
-    """Storing the information received through yfinance"""
-    try:
-        # Establish the connection with data using environment variables
-        db_config = mysql.connector.connect(
-            host = os.getenv('MYSQL_HOST'),
-            database = os.getenv('MYSQL_DATABASE'),
-            user = os.getenv("MYSQL_USER"),
-            password = int(os.getenv("MYSQL_PASS"))
-        )
+            if db_config.is_connected():
+                print("Sucessfully connected to the database")
 
-        if db_config.is_connected():
-            print("Sucessfully connected to the database")
-
-        # Creating a cursor object to execute SQL
-        cursor = db_config.cursor()
-    
-    except mysql.connector.Error as err:
-        print(f"Error with database: {err}")
+            # Creating a cursor object to execute SQL
+            cursor = db_config.cursor()
+        
+        except mysql.connector.Error as err:
+            print(f"Error with database: {err}")
 
 pages = get_total_pages(website_link)
 print(pages)
