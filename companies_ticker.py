@@ -97,8 +97,22 @@ class CompanyData:
     def get_financial_details(tickers):
         """Getting the financial details of the company using yfinance"""
         try:
+            # Creating list to store data
+            company_data = {}
+            
+            
             for i, ticker in enumerate(tickers,1):
                 dat = yf.Ticker(f"{ticker}")
+                # Getting the details of the company
+                company_name = dat.info.get('longname', 'N/A')
+                revenue = dat.info.get('revenue', 'N/A')
+                market_cap = dat.info.get('revenue', 'N/A')
+                hq_city = dat.info.get*('city', "N/A")
+                hq_state = dat.info.get('state', 'N/A')
+                hq_country = dat.info.get('country', 'N/A')
+                sector = dat.info.get('sector', 'N/A')
+                industry = dat.info.get('industry', 'N/A')
+
                 # Printing the details of the ticker
                 print(f"\n{i}. Gathering data for company {ticker}")
                 print(f"Company Name: {dat.info.get('longName', 'N/A')}")
@@ -109,6 +123,14 @@ class CompanyData:
                 print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
                 print(f"Company Sector: {dat.info.get('sector', 'N/A')}")
                 print(f"Company Industry: {dat.info.get('industry', "N/A")}")
+                
+                # Appending data in a dictionary
+                company_data[ticker] = [
+                    company_name, revenue, market_cap, hq_city, hq_state,
+                    hq_country, sector, industry
+                    ]
+            
+            return company_data
         except Exception as e:
             print(f"Yahoo Finance Error: {e}")
 
