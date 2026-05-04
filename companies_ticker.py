@@ -43,9 +43,9 @@ def get_company_data(link,**tag):
 
             # Navigate to the target URL
             page.goto(link)
-
-            # Wait for elements to appear
+            # Scraping company name and ticker
             selector = f"div.{tag['Name']}, div.{tag['Ticker']}"
+            # Wait for elements to appear
             page.wait_for_selector(selector)
 
             # Extract data: Find all elements of company_name and ticker class
@@ -60,7 +60,7 @@ def get_company_data(link,**tag):
             browser.close()
             return names, tickers
     except Exception as e:
-        print(f"ERROR OCCURRED: {Exception} ")
+        print(f"ERROR OCCURRED DURING SCRAPING: {e} ")
 
 def get_financial_details(tickers):
     """Getting the financial details of the company using yfinance"""
@@ -76,7 +76,7 @@ def get_financial_details(tickers):
             print(f"Company HQ State: {dat.info.get('state', 'N/A')}")
             print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
     except Exception as e:
-        print(f"Yahoo Finance Error: {Exception}")
+        print(f"Yahoo Finance Error: {e}")
 
 # Website Link
 website_link = "https://companiesmarketcap.com/"
