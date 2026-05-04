@@ -172,6 +172,8 @@ class CompanyData:
             for page_link in pages_links:
                 ticker = self.get_company_data(page_link)
                 company_tickers.extend(ticker)
+                print(company_tickers)
+                print(ticker)
             
             # Getting financial data for the ticker from yfinance
             for company_ticker in company_tickers:
