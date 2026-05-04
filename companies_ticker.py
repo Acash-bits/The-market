@@ -1,5 +1,19 @@
 from playwright.sync_api import sync_playwright
 import yfinance as yf
+import mysql.connector
+from dotenv import load_dotenv
+import os
+
+# Load envrionment variables
+load_dotenv()
+
+# Website Link
+website_link = "https://companiesmarketcap.com/"
+company_tags = {
+    "Name" : "company-name",
+    "Ticker" : "company-code"
+}
+
 
 def get_total_pages(link):
     """Getting total number of pages from the website"""
@@ -75,15 +89,30 @@ def get_financial_details(tickers):
             print(f"Company HQ City: {dat.info.get('city', 'N/A')}")
             print(f"Company HQ State: {dat.info.get('state', 'N/A')}")
             print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
+            print(f"Company Sector: {dat.info.get('sector', 'N/A')}")
+            print(f"Company Industry: {dat.info.get('industry', "N/A")}")
     except Exception as e:
         print(f"Yahoo Finance Error: {e}")
 
-# Website Link
-website_link = "https://companiesmarketcap.com/"
-company_tags = {
-    "Name" : "company-name",
-    "Ticker" : "company-code"
-}
+def store_data_in_sql():
+    """Storing the information received through yfinance"""
+    try:
+        # Establish the connection with data using environment variables
+        db_config = mysql.connector.connect(
+            host = os.getenv('MYSQL_HOST'),
+            database = os.getenv('MYSQL_DATABASE'),
+            user = os.getenv("MYSQL_USER"),
+            password = int(os.getenv("MYSQL_PASS"))
+        )
+
+        if db_config.is_connected():
+            print("Sucessfully connected to the database")
+
+        # Creating a cursor object to execute SQL
+        cursor = db_config.cursor()
+    
+    except mysql.connector.Error as err:
+        print(f"Error with database: {err}")
 
 pages = get_total_pages(website_link)
 print(pages)
