@@ -45,6 +45,7 @@ class CompanyData:
                 total_pages = int(count/100 +1)
                 
                 return total_pages
+                
         except Exception as e:
             print(f"Error Code: {e}")
 
