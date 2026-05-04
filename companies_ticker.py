@@ -43,6 +43,7 @@ class CompanyData:
                 count = int(company_count[0].replace(",",""))
                 # Counting total pages adding 1 to round off 
                 total_pages = int(count/100 +1)
+                
                 return total_pages
         except Exception as e:
             print(f"Error Code: {e}")
