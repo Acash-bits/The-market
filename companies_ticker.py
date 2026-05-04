@@ -34,7 +34,7 @@ class CompanyData:
                 page.goto(self.link)
                 
                 # Wait for elements to appear
-                target = self.tags['Company_code']
+                target = self.tags['Company_count']
                 page.wait_for_selector(target)
                 
                 # Extract data: Find the count of companies
@@ -59,22 +59,22 @@ class CompanyData:
             total_pages = self.get_total_pages()
             
             for page_number in range(1,total_pages+1):
-                page_link = f"{self.link}{page_number}/"
+                page_link = f"{self.link}page/{page_number}/"
                 print(page_link)
                 page_links.append(page_link)
                 return page_links
         except Exception as e:
             print(f"Error scraping page number {page_number}: {e}")
 
-    def get_company_data(self):
+    def get_company_data(self, page_link):
         """Scraping the company name & ticker from the website"""
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(headless=False)
                 page = browser.new_page()
 
                 # Navigate to the target URL
-                page.goto(self.link)
+                page.goto(page_link)
                 # Scraping company name and ticker
                 selector = f"div.{self.tags['Name']}, div.{self.tags['Ticker']}"
                 # Wait for elements to appear
@@ -122,13 +122,14 @@ class CompanyData:
                 print(f"Company HQ State: {dat.info.get('state', 'N/A')}")
                 print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
                 print(f"Company Sector: {dat.info.get('sector', 'N/A')}")
-                print(f"Company Industry: {dat.info.get('industry', "N/A")}")
+                print(f"Company Industry: {dat.info.get('industry', 'N/A')}")
                 
                 # Appending data in a dictionary
                 company_data[ticker] = [
                     company_name, revenue, market_cap, hq_city, hq_state,
                     hq_country, sector, industry
                     ]
+                print("Data stored in dictionary 'Company_data'")
             
             return company_data
         except Exception as e:
@@ -153,9 +154,32 @@ class CompanyData:
         
         except mysql.connector.Error as err:
             print(f"Error with database: {err}")
+    
+    def get_full_data(self):
+        """Running the full method to scrape and get data from yfinance"""
+        try:
+            # Total pages for the link
+            total_pages = self.get_total_pages()
+            print(f"Total Pages = {total_pages}")
 
-pages = get_total_pages(website_link)
-print(pages)
+            # Creating link for every page 
+            pages_links = self.get_all_page_links()
 
-page_link = (get_all_page_links(website_link,pages))
-print(page_link)
+            # List to store tickers
+            company_tickers = []
+
+            # Scraping the ticker from every page
+            for page_link in pages_links:
+                ticker = self.get_company_data(page_link)
+                company_tickers.extend(ticker)
+            
+            # Getting financial data for the ticker from yfinance
+            for company_ticker in company_tickers:
+                print(company_ticker)
+                self.get_financial_details(company_ticker)
+            
+        except Exception as e:
+            print(f"Error while running final code: {e}")
+
+scrape_website = CompanyData(website_link, company_tags)
+scrape_website.get_full_data()
