@@ -170,15 +170,13 @@ class CompanyData:
 
             # Scraping the ticker from every page
             for page_link in pages_links:
-                ticker = self.get_company_data(page_link)
-                company_tickers.extend(ticker)
+                tickers = self.get_company_data(page_link)
+                company_tickers.extend(tickers)
                 print(company_tickers)
-                print(ticker)
+                print(tickers)
             
-            # Getting financial data for the ticker from yfinance
-            for company_ticker in company_tickers:
-                print(company_ticker)
-                self.get_financial_details(company_tickers)
+                # Getting financial data for the ticker from yfinance
+                self.get_financial_details(tickers)
             
         except Exception as e:
             print(f"Error while running final code: {e}")
