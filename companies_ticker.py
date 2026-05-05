@@ -172,6 +172,8 @@ class CompanyData:
             for page_link in pages_links:
                 tickers = self.get_company_data(page_link)
                 company_tickers.extend(tickers)
+                
+                # Printing data to check 
                 print(company_tickers)
                 print(tickers)
             
