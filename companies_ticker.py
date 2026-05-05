@@ -105,8 +105,8 @@ class CompanyData:
                 dat = yf.Ticker(f"{ticker}")
                 # Getting the details of the company
                 company_name = dat.info.get('longname', 'N/A')
-                revenue = dat.info.get('revenue', 'N/A')
-                market_cap = dat.info.get('revenue', 'N/A')
+                revenue = dat.info.get('totalrevenue', 'N/A')
+                market_cap = dat.info.get('marketcap', 'N/A')
                 hq_city = dat.info.get('city', "N/A")
                 hq_state = dat.info.get('state', 'N/A')
                 hq_country = dat.info.get('country', 'N/A')
