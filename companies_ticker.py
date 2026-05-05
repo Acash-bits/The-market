@@ -155,7 +155,7 @@ class CompanyData:
         except mysql.connector.Error as err:
             print(f"Error with database: {err}")
     
-    def get_full_data(self):
+    def main(self):
         """Running the full method to scrape and get data from yfinance"""
         try:
             # Total pages for the link
@@ -184,4 +184,4 @@ class CompanyData:
             print(f"Error while running final code: {e}")
 
 scrape_website = CompanyData(website_link, company_tags)
-scrape_website.get_full_data()
+scrape_website.main()
