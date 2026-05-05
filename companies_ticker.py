@@ -70,7 +70,7 @@ class CompanyData:
         """Scraping the company name & ticker from the website"""
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=False)
+                browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
 
                 # Navigate to the target URL
@@ -94,7 +94,7 @@ class CompanyData:
         except Exception as e:
             print(f"ERROR OCCURRED DURING SCRAPING: {e} ")
 
-    def get_financial_details(tickers):
+    def get_financial_details(self,tickers):
         """Getting the financial details of the company using yfinance"""
         try:
             # Creating list to store data
@@ -107,7 +107,7 @@ class CompanyData:
                 company_name = dat.info.get('longname', 'N/A')
                 revenue = dat.info.get('revenue', 'N/A')
                 market_cap = dat.info.get('revenue', 'N/A')
-                hq_city = dat.info.get*('city', "N/A")
+                hq_city = dat.info.get('city', "N/A")
                 hq_state = dat.info.get('state', 'N/A')
                 hq_country = dat.info.get('country', 'N/A')
                 sector = dat.info.get('sector', 'N/A')
@@ -178,7 +178,7 @@ class CompanyData:
             # Getting financial data for the ticker from yfinance
             for company_ticker in company_tickers:
                 print(company_ticker)
-                self.get_financial_details(company_ticker)
+                self.get_financial_details(company_tickers)
             
         except Exception as e:
             print(f"Error while running final code: {e}")
