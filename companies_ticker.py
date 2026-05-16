@@ -8,8 +8,8 @@ import os
 load_dotenv()
 
 # Website Link
-website_link = "https://companiesmarketcap.com/"
-company_tags = {
+WEBSITE_LINK = "https://companiesmarketcap.com/"
+COMPANY_TAGS = {
     "Name" : "company-name",
     "Ticker" : "company-code",
     "Company_count" : 'span[class="companies-count font-weight-bold"]'
@@ -183,5 +183,5 @@ class CompanyData:
         except Exception as e:
             print(f"Error while running final code: {e}")
 
-scrape_website = CompanyData(website_link, company_tags)
+scrape_website = CompanyData(WEBSITE_LINK, COMPANY_TAGS)
 scrape_website.main()
