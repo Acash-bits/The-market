@@ -62,7 +62,7 @@ class CompanyData:
                 page_link = f"{self.link}page/{page_number}/"
                 print(page_link)
                 page_links.append(page_link)
-                return page_links
+            return page_links
         except Exception as e:
             print(f"Error scraping page number {page_number}: {e}")
 
