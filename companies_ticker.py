@@ -104,9 +104,9 @@ class CompanyData:
             for i, ticker in enumerate(tickers,1):
                 dat = yf.Ticker(f"{ticker}")
                 # Getting the details of the company
-                company_name = dat.info.get('longname', 'N/A')
-                revenue = dat.info.get('totalrevenue', 'N/A')
-                market_cap = dat.info.get('marketcap', 'N/A')
+                company_name = dat.info.get('longName', 'N/A')
+                revenue = dat.info.get('totalRevenue', 'N/A')
+                market_cap = dat.info.get('marketCap', 'N/A')
                 hq_city = dat.info.get('city', "N/A")
                 hq_state = dat.info.get('state', 'N/A')
                 hq_country = dat.info.get('country', 'N/A')
@@ -115,14 +115,14 @@ class CompanyData:
 
                 # Printing the details of the ticker
                 print(f"\n{i}. Gathering data for company {ticker}")
-                print(f"Company Name: {dat.info.get('longName', 'N/A')}")
-                print(f"Revenue: {dat.info.get('totalRevenue', 'N/A')}")
-                print(f"Market Cap: {dat.info.get('marketCap', 'N/A')}")
-                print(f"Company HQ City: {dat.info.get('city', 'N/A')}")
-                print(f"Company HQ State: {dat.info.get('state', 'N/A')}")
-                print(f"Company HQ Country: {dat.info.get('country', 'N/A')}")
-                print(f"Company Sector: {dat.info.get('sector', 'N/A')}")
-                print(f"Company Industry: {dat.info.get('industry', 'N/A')}")
+                print(f"Company Name: {company_name}")
+                print(f"Revenue: {revenue}")
+                print(f"Market Cap: {market_cap}")
+                print(f"Company HQ City: {hq_city}")
+                print(f"Company HQ State: {hq_state}")
+                print(f"Company HQ Country: {hq_country}")
+                print(f"Company Sector: {sector}")
+                print(f"Company Industry: {industry}")
                 
                 # Appending data in a dictionary
                 company_data[ticker] = [
