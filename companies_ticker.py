@@ -83,7 +83,7 @@ class CompanyData:
 
                 # Extract data: Find all elements of company_name and ticker class
                 names = page.locator(f'div.{self.tags["Name"]}').all_text_contents()
-                tickers = page.locator(f'div.{self.tags["Ticker"]}').all_text_contents()
+                self.tickers = page.locator(f'div.{self.tags["Ticker"]}').all_text_contents()
                 
                 # Print the results # Uncomment to print details getting scrapped
                 # for i, (name, ticker) in enumerate(zip(names, tickers), 1):
@@ -91,7 +91,7 @@ class CompanyData:
                 #     print(f"\tCompany Ticker: {ticker.strip().upper()}")
                 
                 browser.close()
-                return tickers
+                return self.tickers
         except Exception as e:
             print(f"ERROR OCCURRED DURING SCRAPING: {e} ")
 
