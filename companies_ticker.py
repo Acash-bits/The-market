@@ -22,6 +22,7 @@ class CompanyData:
         """Initialize the link and tags attributes """
         self.link = link
         self.tags = tags
+        self.tickers = [] # Empty list to store ticker symbols in it
 
     def get_total_pages(self):
         """Getting total number of pages from the website"""
