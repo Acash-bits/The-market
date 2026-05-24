@@ -75,7 +75,7 @@ class CompanyData:
                 page = browser.new_page()
 
                 # Navigate to the target URL
-                page.goto(page_link)
+                page.goto(page_link, timeout=60000)
                 # Scraping company name and ticker
                 selector = f"div.{self.tags['Name']}, div.{self.tags['Ticker']}"
                 # Wait for elements to appear
