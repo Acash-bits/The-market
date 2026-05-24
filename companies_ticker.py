@@ -3,6 +3,7 @@ import yfinance as yf
 import mysql.connector
 from dotenv import load_dotenv
 import os
+import time
 
 # Load envrionment variables
 load_dotenv()
@@ -23,6 +24,8 @@ class CompanyData:
         self.link = link
         self.tags = tags
         self.tickers = [] # Empty list to store ticker symbols in it
+        self.company_data = {} # Empty dictionary to store company related data
+        self.pages_link = [] # Empty dictionary to store page links
 
     def get_total_pages(self):
         """Getting total number of pages from the website"""
@@ -53,17 +56,14 @@ class CompanyData:
     def get_all_page_links(self):
         """Scraping every page of the website till final page"""
         try:
-            # List to store page links
-            page_links = []
-            
             # Getting the number of total pages
             total_pages = self.get_total_pages()
             
             for page_number in range(1,total_pages+1):
                 page_link = f"{self.link}page/{page_number}/"
                 print(page_link)
-                page_links.append(page_link)
-            return page_links
+                self.pages_link.append(page_link)
+            
         except Exception as e:
             print(f"Error scraping page number {page_number}: {e}")
 
@@ -83,60 +83,80 @@ class CompanyData:
 
                 # Extract data: Find all elements of company_name and ticker class
                 names = page.locator(f'div.{self.tags["Name"]}').all_text_contents()
-                self.tickers = page.locator(f'div.{self.tags["Ticker"]}').all_text_contents()
-                
+                tickers = page.locator(f'div.{self.tags["Ticker"]}').all_text_contents()
+                self.tickers.extend(tickers)
+
                 # Print the results # Uncomment to print details getting scrapped
-                # for i, (name, ticker) in enumerate(zip(names, tickers), 1):
-                #     print(f"\n{i}.Company Name : {name.strip()}")
-                #     print(f"\tCompany Ticker: {ticker.strip().upper()}")
+                for i, (name, ticker) in enumerate(zip(names, tickers), 1):
+                    print(f"\n{i}.Company Name : {name.strip()}")
+                    print(f"\tCompany Ticker: {ticker.strip().upper()}")
+                
+                # Making the scraping sleep for 10 seconds
+                print()
+                print("="*50)
+                print('Holding the ticker extraction process for 10 seconds')
+                print("="*50)
+                time.sleep(10)
                 
                 browser.close()
-                return self.tickers
+                return tickers
         except Exception as e:
             print(f"ERROR OCCURRED DURING SCRAPING: {e} ")
 
-    def get_financial_details(self,tickers):
+    def get_financial_details(self):
         """Getting the financial details of the company using yfinance"""
         try:
-            # Creating list to store data
-            company_data = {}
             
-            
-            for i, ticker in enumerate(tickers,1):
+            for i, ticker in enumerate(self.tickers,1):
                 dat = yf.Ticker(f"{ticker}")
-                # Getting the details of the company
-                company_name = dat.info.get('longName', 'N/A')
-                revenue = dat.info.get('totalRevenue', 'N/A')
-                market_cap = dat.info.get('marketCap', 'N/A')
-                hq_city = dat.info.get('city', "N/A")
-                hq_state = dat.info.get('state', 'N/A')
-                hq_country = dat.info.get('country', 'N/A')
-                sector = dat.info.get('sector', 'N/A')
-                industry = dat.info.get('industry', 'N/A')
-
-                # Printing the details of the ticker
-                print(f"\n{i}. Gathering data for company {ticker}")
-                print(f"Company Name: {company_name}")
-                print(f"Revenue: {revenue}")
-                print(f"Market Cap: {market_cap}")
-                print(f"Company HQ City: {hq_city}")
-                print(f"Company HQ State: {hq_state}")
-                print(f"Company HQ Country: {hq_country}")
-                print(f"Company Sector: {sector}")
-                print(f"Company Industry: {industry}")
+                info = dat.info
                 
-                # Appending data in a dictionary
-                company_data[ticker] = [
-                    company_name, revenue, market_cap, hq_city, hq_state,
-                    hq_country, sector, industry
-                    ]
-                print("Data stored in dictionary 'Company_data'")
-            
-            return company_data
-        except Exception as e:
-            print(f"Yahoo Finance Error: {e}")
+                if i % 10 == 0:
+                    print('\nHolding the yfinance API for 10 seconds')
+                    time.sleep(10)
+                
+                if not info or 'longName' not in info or info.get('totalRevenue') is None or info.get('marketCap') is None:
+                    print(f"\n{i}. No valid data for {ticker}, skipping...")
+                    continue
+                else:
+                    # Getting the details of the company
+                    company_name = dat.info.get('longName', 'N/A')
+                    revenue = int(dat.info.get('totalRevenue', 'N/A'))
+                    market_cap = int(dat.info.get('marketCap', 'N/A'))
+                    hq_city = dat.info.get('city', "N/A")
+                    hq_state = dat.info.get('state', 'N/A')
+                    hq_country = dat.info.get('country', 'N/A')
+                    sector = dat.info.get('sector', 'N/A')
+                    industry = dat.info.get('industry', 'N/A')
 
-    def store_data_in_sql():
+                    revenue_in_million = revenue / 10 ** 6
+                    market_cap_in_billion = market_cap / 10 ** 9
+
+                    # Printing the details of the ticker
+                    print(f"\n{i}. Gathering data for company {ticker}")
+                    print(f"Company Name: {company_name}")
+                    print(f"Revenue: {revenue_in_million}")
+                    print(f"Market Cap: {market_cap_in_billion}")
+                    print(f"Company HQ City: {hq_city}")
+                    print(f"Company HQ State: {hq_state}")
+                    print(f"Company HQ Country: {hq_country}")
+                    print(f"Company Sector: {sector}")
+                    print(f"Company Industry: {industry}")
+                    
+                    # Appending data in a dictionary
+                    self.company_data[ticker] = [
+                        company_name, revenue_in_million,
+                        market_cap_in_billion, hq_city,
+                        hq_state,hq_country,
+                        sector, industry
+                        ]
+                    print("Data stored in dictionary 'company_data'")
+                
+            return self.company_data
+        except Exception as e:
+            print(f"\nYahoo Finance Error: {e}")
+
+    def store_data_in_sql(self):
         """Storing the information received through yfinance"""
         try:
             # Establish the connection with data using environment variables
@@ -144,42 +164,60 @@ class CompanyData:
                 host = os.getenv('MYSQL_HOST'),
                 database = os.getenv('MYSQL_DATABASE'),
                 user = os.getenv("MYSQL_USER"),
-                password = int(os.getenv("MYSQL_PASS"))
+                password = os.getenv("MYSQL_PASS")
             )
 
             if db_config.is_connected():
-                print("Sucessfully connected to the database")
+                print("\nSucessfully connected to the database")
 
             # Creating a cursor object to execute SQL
             cursor = db_config.cursor()
-        
+            sql = "Insert into usa_listed_companies" \
+            "(Ticker, Company_name, Revenue, Market_Cap,HQ_City, HQ_State," \
+            "HQ_Country, Sector, Industry) " \
+            "values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+            for ticker in self.company_data.keys():
+                print(f"Adding value of {ticker} in database")
+                company_info = self.company_data[ticker]
+                val = (
+                    ticker, company_info[0], company_info[1],
+                    company_info[2], company_info[3], 
+                    company_info[4], company_info[5],
+                    company_info[6], company_info[7]
+                       )
+                cursor.execute(sql,val)
+                db_config.commit()
+            cursor.close()
+
         except mysql.connector.Error as err:
             print(f"Error with database: {err}")
     
     def main(self):
         """Running the full method to scrape and get data from yfinance"""
         try:
+            print("Starting the scraper to get financial data\n")
             # Total pages for the link
             total_pages = self.get_total_pages()
             print(f"Total Pages = {total_pages}")
-
-            # Creating link for every page 
-            pages_links = self.get_all_page_links()
-
-            # List to store tickers
-            company_tickers = []
+            # Creating page links
+            self.get_all_page_links()
 
             # Scraping the ticker from every page
-            for page_link in pages_links:
-                tickers = self.get_company_data(page_link)
-                company_tickers.extend(tickers)
+            for page_link in self.pages_link:
+                print(f"\nScraping page link: {page_link}")
+                tickers_scraped = self.get_company_data(page_link)
                 
-                # Printing data to check 
-                print(company_tickers)
-                print(tickers)
+                # Printing data to check
+                print()
+                print(f"="*50)
+                print(f"Number of tickers scraped: {len(tickers_scraped)}")
+                print(f"Total Number of tickers: {len(self.tickers)}")
+                print("="*50)
             
-                # Getting financial data for the ticker from yfinance
-                self.get_financial_details(tickers)
+            # Getting financial data for the ticker from yfinance
+            self.get_financial_details()
+            self.store_data_in_sql() # Storing data in sql
             
         except Exception as e:
             print(f"Error while running final code: {e}")
