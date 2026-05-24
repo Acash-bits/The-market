@@ -96,7 +96,7 @@ class CompanyData:
                 print("="*50)
                 print('Holding the ticker extraction process for 10 seconds')
                 print("="*50)
-                time.sleep(10)
+                time.sleep(30)
                 
                 browser.close()
                 return tickers
