@@ -205,12 +205,14 @@ class CompanyData:
 
             # Scraping the ticker from every page
             for page_link in self.pages_link:
+                page_counter = 1
                 print(f"\nScraping page link: {page_link}")
                 tickers_scraped = self.get_company_data(page_link)
                 
                 # Printing data to check
                 print()
                 print(f"="*50)
+                print(f"Succesfully Scraped page number {page_counter}")
                 print(f"Number of tickers scraped: {len(tickers_scraped)}")
                 print(f"Total Number of tickers: {len(self.tickers)}")
                 print("="*50)
