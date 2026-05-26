@@ -208,6 +208,7 @@ class CompanyData:
                 page_counter = 1
                 print(f"\nScraping page link: {page_link}")
                 tickers_scraped = self.get_company_data(page_link)
+                page_counter += 1
                 
                 # Printing data to check
                 print()
