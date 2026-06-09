@@ -74,7 +74,7 @@ class CompanyData:
                 browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
 
-                # Navigate to the target URL
+                # Navigate to the target URL with timeout of 60 seconds
                 page.goto(page_link, timeout=60000)
                 # Scraping company name and ticker
                 selector = f"div.{self.tags['Name']}, div.{self.tags['Ticker']}"
