@@ -84,7 +84,7 @@ class CompanyData:
                 # Extract data: Find all elements of company_name and ticker class
                 names = page.locator(f'div.{self.tags["Name"]}').all_text_contents()
                 tickers = page.locator(f'div.{self.tags["Ticker"]}').all_text_contents()
-                self.tickers.extend(tickers)
+                self.tickers = tickers
 
                 # Print the results # Uncomment to print details getting scrapped
                 for i, (name, ticker) in enumerate(zip(names, tickers), 1):
@@ -209,18 +209,18 @@ class CompanyData:
                 print(f"\nScraping page link: {page_link}")
                 tickers_scraped = self.get_company_data(page_link)
                 page_counter += 1
+
+                # Getting financial data for the ticker from yfinance
+                self.get_financial_details()
+                self.store_data_in_sql() # Storing data in sql
                 
                 # Printing data to check
                 print()
                 print(f"="*50)
                 print(f"Succesfully Scraped page number {page_counter}")
                 print(f"Number of tickers scraped: {len(tickers_scraped)}")
-                print(f"Total Number of tickers: {len(self.tickers)}")
                 print("="*50)
             
-            # Getting financial data for the ticker from yfinance
-            self.get_financial_details()
-            self.store_data_in_sql() # Storing data in sql
             
         except Exception as e:
             print(f"Error while running final code: {e}")
