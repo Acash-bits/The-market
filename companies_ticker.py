@@ -55,10 +55,11 @@ class CompanyData:
     def get_all_page_links(self):
         """Scraping every page of the website till final page"""
         try:
+            print("\nBelow are the links that will be scraped:")
             # Creating the link for every page
             for page_number in range(1,self.total_pages+1):
                 page_link = f"{self.link}page/{page_number}/"
-                print(f"Page Number {page_number} link: {page_link}")
+                print(f"\tPage Number {page_number} link: {page_link}")
                 self.pages_link.append(page_link)
             
         except Exception as e:
@@ -69,10 +70,10 @@ class CompanyData:
         pages_count = self.total_pages
 
         while True:
-            response = input("Please provide the page number to start with")
-            int(response.strip().lower())
-            if response == 1 or response <= pages_count:
-                return response
+            response = input("\nPlease provide the page number to start with: ")
+            final_response = int(response.strip().lower())
+            if final_response == 1 or final_response <= pages_count:
+                return final_response
             print(f"Invalid input! Please enter page between 1-{pages_count} ")
 
     def get_company_data(self, page_link):
@@ -204,18 +205,18 @@ class CompanyData:
     def main(self):
         """Running the full method to scrape and get data from yfinance"""
         try:
-            print("Starting the scraper to get financial data\n")
+            print("\nStarting the scraper to get financial data\n")
             # Getting total number of pages
             self.get_total_pages()
             # Total pages for the link
-            print(f"Total Pages = {self.total_pages}")
+            print(f"Total Pages to scrape: {self.total_pages}")
             # Creating page links
             self.get_all_page_links()
+            # Letting the user choose from which page to scrape
+            page_counter = self.get_valid_input()
 
-            # Scraping the ticker from every page
-            page_counter = 1
-
-            for page_link in self.pages_link:
+            for page_number in range(page_counter, self.total_pages):
+                page_link = self.pages_link[page_number]
                 print(f"\nScraping page link: {page_link}")
                 print(f"Scraping page number: {page_counter}")
                 tickers_scraped = self.get_company_data(page_link)
