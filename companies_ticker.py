@@ -8,8 +8,9 @@ import time
 # Load envrionment variables
 load_dotenv()
 
-# Website Link
-WEBSITE_LINK = "https://companiesmarketcap.com/"
+# Enter link from companiesmarketcap to scrape data
+WEBSITE_LINK = input("Enter the link to scrape from CompaniesMarketcap: ")
+# Predefined tags to scrape from
 COMPANY_TAGS = {
     "Name" : "company-name",
     "Ticker" : "company-code",
