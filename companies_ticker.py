@@ -8,25 +8,23 @@ import time
 # Load envrionment variables
 load_dotenv()
 
-# Enter link from companiesmarketcap to scrape data
-WEBSITE_LINK = input("Enter the link to scrape from CompaniesMarketcap: ")
-# Predefined tags to scrape from
-COMPANY_TAGS = {
-    "Name" : "company-name",
-    "Ticker" : "company-code",
-    "Company_count" : 'span[class="companies-count font-weight-bold"]'
-}
-
 class CompanyData:
     """Getting data of listed companies and storing them in sql based on link"""
 
-    def __init__(self, link, tags):
+    def __init__(self):
         """Initialize the link and tags attributes """
-        self.link = link
-        self.tags = tags
+        # Enter link from companiesmarketcap to scrape data
+        self.link = input("Enter the link to scrape from CompaniesMarketcap: ")
+        # Predefined tags to scrape from
+        self.tags = {
+            "Name" : "company-name",
+            "Ticker" : "company-code",
+            "Company_count" : 'span[class="companies-count font-weight-bold"]'
+        }
         self.tickers = [] # Empty list to store ticker symbols in it
         self.company_data = {} # Empty dictionary to store company related data
         self.pages_link = [] # Empty dictionary to store page links
+        self.total_pages = 0 # Default value 0 and will change accordingly
 
     def get_total_pages(self):
         """Getting total number of pages from the website"""
@@ -48,8 +46,8 @@ class CompanyData:
                 count = int(company_count[0].replace(",",""))
                 # Counting total pages adding 1 to round off 
                 total_pages = int(count/100 +1)
-                
-                return total_pages
+
+                self.total_pages = total_pages
                 
         except Exception as e:
             print(f"Error Code: {e}")
@@ -57,16 +55,17 @@ class CompanyData:
     def get_all_page_links(self):
         """Scraping every page of the website till final page"""
         try:
-            # Getting the number of total pages
-            total_pages = self.get_total_pages()
-            
-            for page_number in range(1,total_pages+1):
+            # Creating the link for every page
+            for page_number in range(1,self.total_pages+1):
                 page_link = f"{self.link}page/{page_number}/"
-                print(page_link)
+                print(f"Page Number {page_number} link: {page_link}")
                 self.pages_link.append(page_link)
             
         except Exception as e:
             print(f"Error scraping page number {page_number}: {e}")
+
+    def get_valid_input(self):
+        """Keep asking the user until valid page number is given"""
 
     def get_company_data(self, page_link):
         """Scraping the company name & ticker from the website"""
@@ -198,9 +197,10 @@ class CompanyData:
         """Running the full method to scrape and get data from yfinance"""
         try:
             print("Starting the scraper to get financial data\n")
+            # Getting total number of pages
+            self.get_total_pages()
             # Total pages for the link
-            total_pages = self.get_total_pages()
-            print(f"Total Pages = {total_pages}")
+            print(f"Total Pages = {self.total_pages}")
             # Creating page links
             self.get_all_page_links()
 
@@ -211,7 +211,6 @@ class CompanyData:
                 print(f"\nScraping page link: {page_link}")
                 print(f"Scraping page number: {page_counter}")
                 tickers_scraped = self.get_company_data(page_link)
-                page_counter += 1
 
                 # Getting financial data for the ticker from yfinance
                 self.get_financial_details()
@@ -223,10 +222,14 @@ class CompanyData:
                 print(f"Succesfully Scraped page number {page_counter}")
                 print(f"Number of tickers scraped: {len(tickers_scraped)}")
                 print("="*50)
+                
+                # Incrementing the page number
+                page_counter += 1
             
             
         except Exception as e:
             print(f"Error while running final code: {e}")
 
-scrape_website = CompanyData(WEBSITE_LINK, COMPANY_TAGS)
-scrape_website.main()
+if __name__ == "__main__":
+    scrape_website = CompanyData()
+    scrape_website.main()
