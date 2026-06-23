@@ -66,6 +66,14 @@ class CompanyData:
 
     def get_valid_input(self):
         """Keep asking the user until valid page number is given"""
+        pages_count = self.total_pages
+
+        while True:
+            response = input("Please provide the page number to start with")
+            int(response.strip().lower())
+            if response == 1 or response <= pages_count:
+                return response
+            print(f"Invalid input! Please enter page between 1-{pages_count} ")
 
     def get_company_data(self, page_link):
         """Scraping the company name & ticker from the website"""
