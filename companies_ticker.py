@@ -14,7 +14,7 @@ class CompanyData:
     def __init__(self):
         """Initialize the link and tags attributes """
         # Enter link from companiesmarketcap to scrape data
-        self.link = input("Enter the link to scrape from CompaniesMarketcap: ")
+        self.link = input("Link to scrape CompaniesMarketcap: ").strip().lower()
         # Predefined tags to scrape from
         self.tags = {
             "Name" : "company-name",
@@ -32,7 +32,6 @@ class CompanyData:
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
-                
                 # Navigate to target url
                 page.goto(self.link)
                 
@@ -70,11 +69,15 @@ class CompanyData:
         pages_count = self.total_pages
 
         while True:
+            # Asking user to provide with page number
             response = input("\nPlease provide the page number to start with: ")
             final_response = int(response.strip().lower())
-            if final_response == 1 or final_response <= pages_count:
+            
+            # Creating a list of pages 
+            pages_list = list(range(1, pages_count+1))
+            if final_response in pages_list:
                 return final_response
-            print(f"Invalid input! Please enter page between 1-{pages_count} ")
+            print(f"Invalid input! Please enter page between 1-{pages_count}")
 
     def get_company_data(self, page_link):
         """Scraping the company name & ticker from the website"""
@@ -216,7 +219,7 @@ class CompanyData:
             page_counter = self.get_valid_input()
 
             for page_number in range(page_counter, self.total_pages):
-                page_link = self.pages_link[page_number]
+                page_link = self.pages_link[page_number - 1]
                 print(f"\nScraping page link: {page_link}")
                 print(f"Scraping page number: {page_counter}")
                 tickers_scraped = self.get_company_data(page_link)
