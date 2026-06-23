@@ -231,13 +231,9 @@ class CompanyData:
                 # Printing data to check
                 print()
                 print(f"="*50)
-                print(f"Succesfully Scraped page number {page_counter}")
+                print(f"Succesfully Scraped page number {page_number}")
                 print(f"Number of tickers scraped: {len(tickers_scraped)}")
                 print("="*50)
-                
-                # Incrementing the page number
-                page_counter += 1
-            
             
         except Exception as e:
             print(f"Error while running final code: {e}")
