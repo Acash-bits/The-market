@@ -12,7 +12,7 @@ class CompanyData:
     """Getting data of listed companies and storing them in sql based on link"""
 
     def __init__(self):
-        """Initialize the link and tags attributes """
+        """Initializing the attributes """
         # Enter link from companiesmarketcap to scrape data
         self.link = input("Link to scrape CompaniesMarketcap: ").strip().lower()
         # Predefined tags to scrape from
