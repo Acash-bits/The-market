@@ -218,7 +218,7 @@ class CompanyData:
             # Letting the user choose from which page to scrape
             page_counter = self.get_valid_input()
 
-            for page_number in range(page_counter, self.total_pages):
+            for page_number in range(page_counter, self.total_pages + 1):
                 page_link = self.pages_link[page_number - 1]
                 print(f"\nScraping page link: {page_link}")
                 print(f"Scraping page number: {page_counter}")
