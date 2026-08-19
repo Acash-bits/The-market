@@ -65,19 +65,23 @@ class CompanyData:
             print(f"Error scraping page number {page_number}: {e}")
 
     def get_valid_input(self):
-        """Keep asking the user until valid page number is given"""
-        pages_count = self.total_pages
+        try:
+            """Keep asking the user until valid page number is given"""
+            pages_count = self.total_pages
 
-        while True:
-            # Asking user to provide with page number
-            response = input("\nPlease provide the page number to start with: ")
-            final_response = int(response.strip().lower())
+            while True:
+                # Asking user to provide with page number
+                response = input("\nPlease provide the page number to start with: ")
+                final_response = int(response.strip().lower())
+                
+                # Creating a list of pages 
+                pages_list = list(range(1, pages_count+1))
+                if final_response in pages_list:
+                    return final_response
+                print(f"Invalid input! Please enter page between 1-{pages_count}")
+        except Exception as e:
+            print(f"Error occured: {e}")
             
-            # Creating a list of pages 
-            pages_list = list(range(1, pages_count+1))
-            if final_response in pages_list:
-                return final_response
-            print(f"Invalid input! Please enter page between 1-{pages_count}")
 
     def get_company_data(self, page_link):
         """Scraping the company name & ticker from the website"""
