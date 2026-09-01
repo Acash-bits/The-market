@@ -14,7 +14,7 @@ class CompanyData:
     def __init__(self):
         """Initialize the link and tags attributes """
         # Enter link from companiesmarketcap to scrape data
-        self.link = input("Enter the link to scrape from CompaniesMarketcap: ")
+        self.link = input("Link to scrape CompaniesMarketcap: ").strip().lower()
         # Predefined tags to scrape from
         self.tags = {
             "Name" : "company-name",
@@ -32,7 +32,6 @@ class CompanyData:
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
-                
                 # Navigate to target url
                 page.goto(self.link)
                 
@@ -55,14 +54,34 @@ class CompanyData:
     def get_all_page_links(self):
         """Scraping every page of the website till final page"""
         try:
+            print("\nBelow are the links that will be scraped:")
             # Creating the link for every page
             for page_number in range(1,self.total_pages+1):
                 page_link = f"{self.link}page/{page_number}/"
-                print(f"Page Number {page_number} link: {page_link}")
+                print(f"\tPage Number {page_number} link: {page_link}")
                 self.pages_link.append(page_link)
             
         except Exception as e:
             print(f"Error scraping page number {page_number}: {e}")
+
+    def get_valid_input(self):
+        try:
+            """Keep asking the user until valid page number is given"""
+            pages_count = self.total_pages
+
+            while True:
+                # Asking user to provide with page number
+                response = input("\nPlease provide the page number to start with: ")
+                final_response = int(response.strip().lower())
+                
+                # Creating a list of pages 
+                pages_list = list(range(1, pages_count+1))
+                if final_response in pages_list:
+                    return final_response
+                print(f"Invalid input! Please enter page between 1-{pages_count}")
+        except Exception as e:
+            print(f"Error occured: {e}")
+            
 
     def get_company_data(self, page_link):
         """Scraping the company name & ticker from the website"""
@@ -193,18 +212,18 @@ class CompanyData:
     def main(self):
         """Running the full method to scrape and get data from yfinance"""
         try:
-            print("Starting the scraper to get financial data\n")
+            print("\nStarting the scraper to get financial data\n")
             # Getting total number of pages
             self.get_total_pages()
             # Total pages for the link
-            print(f"Total Pages = {self.total_pages}")
+            print(f"Total Pages to scrape: {self.total_pages}")
             # Creating page links
             self.get_all_page_links()
+            # Letting the user choose from which page to scrape
+            page_counter = self.get_valid_input()
 
-            # Scraping the ticker from every page
-            page_counter = 1
-
-            for page_link in self.pages_link:
+            for page_number in range(page_counter, self.total_pages + 1):
+                page_link = self.pages_link[page_number - 1]
                 print(f"\nScraping page link: {page_link}")
                 print(f"Scraping page number: {page_counter}")
                 tickers_scraped = self.get_company_data(page_link)
@@ -216,13 +235,9 @@ class CompanyData:
                 # Printing data to check
                 print()
                 print(f"="*50)
-                print(f"Succesfully Scraped page number {page_counter}")
+                print(f"Succesfully Scraped page number {page_number}")
                 print(f"Number of tickers scraped: {len(tickers_scraped)}")
                 print("="*50)
-                
-                # Incrementing the page number
-                page_counter += 1
-            
             
         except Exception as e:
             print(f"Error while running final code: {e}")
