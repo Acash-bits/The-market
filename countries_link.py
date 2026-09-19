@@ -35,19 +35,45 @@ class CountryLinks:
                 countries = page.locator(target_countries).all_text_contents()
 
                 # Print the countries name
-                for country in countries:
-                    print(country)
+                print("Countries available to choose from")
+                for country_count, country in enumerate(countries, start=1):
+                    print(f"{country_count}. {country}")
                     # Adding the countries in the countries_name attribute
                     self.countries_name.append(country)
         
         except Exception as e:
-            print(f"\nERROR OCCURED DURING SCRAPING COUNTRY NAME AND LINK")
+            print(f"\nERROR OCCURED WHILE SCRAPING COUNTRY NAME")
             print(f"ERROR: {e}")
 
 
     def get_countries_link(self):
         """Getting the countries link"""
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
+
+                # Navigate to target URL with timeout of 60 seconds
+                page.goto(self.countries_page, timeout=60000)
+
+                # Wait for elements to appear
+                target_links = self.countries_tags["Country_link"]
+                page.wait_for_selector(target_links)
+
+                #Extract data: Find all elements of Country Name
+                links = page.locator(target_links).all_text_contents()
+
+                # Print the Countries Link
+                print("\nCountries Link to choose from")
+                for links_count, link in enumerate(links, start=1):
+                    print(f"{links_count}. {link}")
+                    self.countries_link.append(link)
+        except Exception as e:
+            print("ERROR OCCURED WHILE SCRAPING COUNTRY LINK")
+            print(f"ERROR: {e}")
+
 
 if __name__ == "__main__":
     country_scraper = CountryLinks()
     country_scraper.get_countries_name()
+    country_scraper.get_countries_link()
