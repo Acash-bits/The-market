@@ -36,7 +36,7 @@ class SectorLinks:
 
                 # Printing the scraped data using loop
                 for sector_count, sector in enumerate(sectors, start=1):
-                    print(f"{sector_count}. {sector.title()}")
+                    # print(f"{sector_count}. {sector.title()}") # Uncomment to print
                     # Removing the whitespaces from the sector name
                     sector.strip()
                     self.sectors_name[sector.title()] = None
@@ -78,6 +78,7 @@ class SectorLinks:
 
                 # Adding the scraped link in the attribute dictionary with keys
                 # Printing the links and the sector name through key and value
+                print("Sector available on the website")
                 for key, value in zip(self.sectors_name.keys(), full_links):
                     counter +=1 # Incrementing with every run
                     self.sectors_name[key] = value
