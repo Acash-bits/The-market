@@ -24,7 +24,7 @@ class SectorLinks:
                 # Set the default timeout to 90 seconds
                 page.set_default_timeout(90000)
 
-                # Navigate to the target URL with timeout of 90 seconds
+                # Navigate to the target URL
                 page.goto(self.all_sectors_page, wait_until="domcontentloaded")
 
                 # Wait for the elements to appear
