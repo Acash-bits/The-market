@@ -10,7 +10,7 @@ class CountryLinks:
         # Main link of the website to pull countires link 
         self.countries_page = "https://companiesmarketcap.com/all-countries/"
         # Predefined tags to scrape from
-        self.countries_tags = {
+        self.countries_tag = {
             "Country_name" : "td[data-sort] a"
         }
         self.countries_name = [] # Empty list to store countries name in it
@@ -22,12 +22,14 @@ class CountryLinks:
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 page=browser.new_page()
+                # Set the default timeout to 90 seconds
+                page.set_default_timeout(90000)
 
                 # Navigate to target URL with timeout of 60 seconds
-                page.goto(self.countries_page, wait_until="domcontentloaded", timeout=90000)
+                page.goto(self.countries_page, wait_until="domcontentloaded")
 
                 # Wait for elements to appear
-                target_countries = self.countries_tags["Country_name"]
+                target_countries = self.countries_tag["Country_name"]
                 page.wait_for_selector(target_countries)
 
                 # Extract data: Find all elements of Country Name
@@ -57,7 +59,7 @@ class CountryLinks:
                 page.goto(self.countries_page, wait_until="domcontentloaded", timeout=90000)
 
                 # Wait for elements to appear
-                target_links = self.countries_tags["Country_name"]
+                target_links = self.countries_tag["Country_name"]
                 page.wait_for_selector(target_links)
 
                 # Read the href attribute from every matching <a>
