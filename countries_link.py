@@ -25,7 +25,7 @@ class CountryLinks:
                 # Set the default timeout to 90 seconds
                 page.set_default_timeout(90000)
 
-                # Navigate to target URL with timeout of 60 seconds
+                # Navigate to target URL
                 page.goto(self.countries_page, wait_until="domcontentloaded")
 
                 # Wait for elements to appear
