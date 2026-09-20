@@ -13,85 +13,68 @@ class SectorLinks:
             "Sector_tag" : "td[data-sort] a"
         }
         # Empty dictionary to store sectors name and links in it
-        self.sectors_name = {}
+        self.sectors_data = {}
 
-    def get_sectors_name(self):
-        """Scraping Sector Names from the website"""
+    def fetch_sectors_data(self):
+        """Fetching the sector name and it's page link in one rum"""
         try:
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
-                # Set the default timeout to 90 seconds
+                # Set default timeout to 90 seconds
                 page.set_default_timeout(90000)
 
                 # Navigate to the target URL
+                print("Navigating to the target URL of 'ALL SECTORS'")
                 page.goto(self.all_sectors_page, wait_until="domcontentloaded")
+                print("URL Navigated")
 
                 # Wait for the elements to appear
-                target = self.sectors_tag["Sector_tag"]
-                page.wait_for_selector(target)
+                print("\nWaiting for the elements of Sectors to appear")
+                sector_tag = self.sectors_tag["Sector_tag"]
+                page.wait_for_selector(sector_tag)
+                print("Elements Appeared")
 
-                # Extract data: Find all elements of Sector Name
-                sectors = page.locator(target).all_text_contents()
-
-                # Printing the scraped data using loop
-                for sector_count, sector in enumerate(sectors, start=1):
-                    # print(f"{sector_count}. {sector.title()}") # Uncomment to print
-                    # Removing the whitespaces from the sector name
-                    sector.strip()
-                    self.sectors_name[sector.title()] = None
-
-        # Printing the ERROR if it happens
-        except Exception as e:
-            print("ERROR OCCURED WHILE SCRAPING SECTORS NAME")
-            print(f"ERROR CODE: {e}")
-
-    def get_sectors_link(self):
-        """Scraping sector page link from the website"""
-        try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                page = browser.new_page()
-                # Set the default timeout to 90 seconds
-                page.set_default_timeout(90000)
-
-                # Navigate to the target URL
-                page.goto(self.all_sectors_page, wait_until="domcontentloaded")
-
-                # Wait for the elements to appear
-                sector_target = self.sectors_tag["Sector_tag"]
-                page.wait_for_selector(sector_target)
-
+                # Extracting the Country Name and Country Link
                 # Read the href attribute from every matching <a>
-                # Extract the data (links)
-                sector_links = page.locator(sector_target).evaluate_all(
-                    "els => els.map(e=> e.getAttribute('href'))"
+                print("\nExtracting the Sector name and it's page link")
+                print("Extracting Links")
+                sectors_href = page.locator(sector_tag).evaluate_all(
+                    "els => els.map(e => e.getAttribute('href'))"
                 )
-                # List to store full urls of the sectors
-                full_links = []
+                print("Links Extracted")
+                # Read the countries name
+                print("Extracting Sectors Name")
+                sectors_name = page.locator(sector_tag).all_text_contents()
+                print("Sectors Name Extracted")
 
-                # Looping to create the full URL of the sector page
-                counter = 0 # To count sectors
-                for sector_link in sector_links:
-                    full_url = urljoin(self.all_sectors_page, sector_link)
-                    full_links.append(full_url)
+                # Storing the data in attributs and creating full link
+                print("Storing Company name and it's full link")
+                for sector, href in zip(sectors_name, sectors_href):
+                    sector_full_url = urljoin(self.all_sectors_page, href)
+                    self.sectors_data[sector.strip()] = [sector_full_url]
+                    print(f"Link for the Sector {sector} STORED!!")
+                    browser.close()
+                return
 
-                # Adding the scraped link in the attribute dictionary with keys
-                # Printing the links and the sector name through key and value
-                print("Sector available on the website")
-                for key, value in zip(self.sectors_name.keys(), full_links):
-                    counter +=1 # Incrementing with every run
-                    self.sectors_name[key] = value
-                    print(f"{counter}. Link of the sector {key}: {value}")
-
-        # Printing the ERROR if it happens
         except Exception as e:
-            print("Error OCCURED WHILE SCRAPING THE LINK")
+            print("ERROR OCCURED WHILE SCRAPING COUNTRY NAME AND IT'S LINK")
+            print(f"ERROR CODE : {e}")
+            return
+
+    def main(self):
+        """Running the full simulation to scrape sector name and link"""
+        try:
+            print("Scraping the Sector Name and it's link")
+            # Fetching Sector Name and it's respective page link
+            self.fetch_sectors_data()
+
+        except Exception as e:
+            print("ERROR OCCURED WHILE FETCHING SECTOR DATA")
             print(f"ERROR CODE: {e}")
 
 
 
 if __name__ == "__main__":
     sector_scraper = SectorLinks()
-    sector_scraper.get_sectors_name()
-    sector_scraper.get_sectors_link()
+    sector_scraper.main()
