@@ -13,73 +13,68 @@ class CountryLinks:
         self.countries_tag = {
             "Country_name" : "td[data-sort] a"
         }
-        self.countries_name = [] # Empty list to store countries name in it
-        self.countries_link = [] # Empty list to store countires limk in it
+        self.countries_data = {} # To store country name and link
 
-    def get_countries_name(self):
-        """Getting the Country name and link of that country"""
-        try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                page=browser.new_page()
-                # Set the default timeout to 90 seconds
-                page.set_default_timeout(90000)
-
-                # Navigate to target URL
-                page.goto(self.countries_page, wait_until="domcontentloaded")
-
-                # Wait for elements to appear
-                target_countries = self.countries_tag["Country_name"]
-                page.wait_for_selector(target_countries)
-
-                # Extract data: Find all elements of Country Name
-                countries = page.locator(target_countries).all_text_contents()
-                # Storing the names of the countries inself attribute
-                # Removing the whitespaces in country name
-                self.countries_name = [c.strip() for c in countries]
-
-                # Print the countries name
-                print("Countries available to choose from")
-                for country_count, country in enumerate(countries, start=1):
-                    print(f"{country_count}. {country}")
-        
-        except Exception as e:
-            print(f"\nERROR OCCURED WHILE SCRAPING COUNTRY NAME")
-            print(f"ERROR: {e}")
-
-
-    def get_countries_link(self):
-        """Getting the countries link"""
+    def fetch(self):
+        """Fetching the country name and it's page link in one run"""
         try:
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
+                # Set default timeout to 90 seconds
+                page.set_default_timeout(90000)
 
-                # Navigate to target URL with timeout of 60 seconds
-                page.goto(self.countries_page, wait_until="domcontentloaded", timeout=90000)
+                # Navigate to the target URL
+                print("Navigating to the URL")
+                page.goto(self.countries_page,wait_until="domcontentloaded")
+                print("URL Navigated")
 
-                # Wait for elements to appear
-                target_links = self.countries_tag["Country_name"]
-                page.wait_for_selector(target_links)
+                # Wait for the elements to appear
+                print("\nWaiting for the elements to appear")
+                target_tag = self.countries_tag["Country_name"]
+                page.wait_for_selector(target_tag)
+                print("Elements Appeared")
 
+                # Extracting the Country Name and Country Link
                 # Read the href attribute from every matching <a>
-                # Extract the date
-                links = page.locator(target_links).evaluate_all(
+                print("\nExtracting the Country name and it's page link")
+                print("Extracting Links")
+                hrefs = page.locator(target_tag).evaluate_all(
                     "els => els.map(e => e.getAttribute('href'))"
                 )
+                print("Links Extracted")
+                # Read the countries name
+                print("Extracting Countries Name")
+                countries_name = page.locator(target_tag).all_text_contents()
+                print("Companies Name Extracted")
 
-                # Print the Countries Link
-                print("\nCountries Link to choose from")
-                for links_count, link in enumerate(links, start=1):
-                    full_url = urljoin(self.countries_page, link)
-                    print(f"{links_count}. {full_url}")
-                    self.countries_link.append(full_url)
+                # Storing the data in attributs and creating full link
+                print("Storing Company name and it's full link")
+                for country, href in zip(countries_name, hrefs):
+                    full_url = urljoin(self.countries_page, href)
+                    self.countries_data[country.strip()] = [full_url]
+                    # Uncomment to print the data
+                    # print(f"Added {country} link ({full_url}) to dictionary")
+                    print(f"Link for the Country {country} STORED!!")
+                    browser.close()
+                return
+
         except Exception as e:
-            print("ERROR OCCURED WHILE SCRAPING COUNTRY LINK")
-            print(f"ERROR: {e}")
+            print("ERROR OCCURED WHILE SCRAPING COUNTRY NAME AND IT'S LINK")
+            print(f"ERROR CODE : {e}")
 
+    def main(self):
+        """Running the full simulation to get the country name and links"""
+        try:
+            print("Starting the scraper\n")
+            # Fetching Country name and link
+            self.fetch()
+        
+        except Exception as e:
+            print("ERROR OCCURED WHILE SCRAPING THE DATA")
+            print(f"ERROR CODE: {e}")
+            return
 
 if __name__ == "__main__":
     country_scraper = CountryLinks()
-    country_scraper.get_countries_name()
-    country_scraper.get_countries_link()
+    country_scraper.fetch()
