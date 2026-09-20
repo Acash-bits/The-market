@@ -15,7 +15,7 @@ class CountryLinks:
         }
         self.countries_data = {} # To store country name and link
 
-    def fetch(self):
+    def fetch_data(self):
         """Fetching the country name and it's page link in one run"""
         try:
             with sync_playwright() as p:
@@ -68,7 +68,7 @@ class CountryLinks:
         try:
             print("Starting the scraper\n")
             # Fetching Country name and link
-            self.fetch()
+            self.fetch_data()
         
         except Exception as e:
             print("ERROR OCCURED WHILE SCRAPING THE DATA")
@@ -77,4 +77,4 @@ class CountryLinks:
 
 if __name__ == "__main__":
     country_scraper = CountryLinks()
-    country_scraper.fetch()
+    country_scraper.fetch_data()
