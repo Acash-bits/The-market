@@ -62,6 +62,7 @@ class CountryLinks:
         except Exception as e:
             print("ERROR OCCURED WHILE SCRAPING COUNTRY NAME AND IT'S LINK")
             print(f"ERROR CODE : {e}")
+            return
 
     def main(self):
         """Running the full simulation to get the country name and links"""
@@ -71,10 +72,10 @@ class CountryLinks:
             self.fetch_data()
         
         except Exception as e:
-            print("ERROR OCCURED WHILE SCRAPING THE DATA")
+            print("ERROR OCCURED WHILE SCRAPING THE COUNTRY DATA")
             print(f"ERROR CODE: {e}")
             return
 
 if __name__ == "__main__":
     country_scraper = CountryLinks()
-    country_scraper.fetch_data()
+    country_scraper.main()
