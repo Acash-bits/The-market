@@ -65,19 +65,23 @@ class CompanyData:
             print(f"Error scraping page number {page_number}: {e}")
 
     def get_valid_input(self):
-        """Keep asking the user until valid page number is given"""
-        pages_count = self.total_pages
+        try:
+            """Keep asking the user until valid page number is given"""
+            pages_count = self.total_pages
 
-        while True:
-            # Asking user to provide with page number
-            response = input("\nPlease provide the page number to start with: ")
-            final_response = int(response.strip().lower())
+            while True:
+                # Asking user to provide with page number
+                response = input("\nPlease provide the page number to start with: ")
+                final_response = int(response.strip().lower())
+                
+                # Creating a list of pages 
+                pages_list = list(range(1, pages_count+1))
+                if final_response in pages_list:
+                    return final_response
+                print(f"Invalid input! Please enter page between 1-{pages_count}")
+        except Exception as e:
+            print(f"Error occured: {e}")
             
-            # Creating a list of pages 
-            pages_list = list(range(1, pages_count+1))
-            if final_response in pages_list:
-                return final_response
-            print(f"Invalid input! Please enter page between 1-{pages_count}")
 
     def get_company_data(self, page_link):
         """Scraping the company name & ticker from the website"""
@@ -218,7 +222,7 @@ class CompanyData:
             # Letting the user choose from which page to scrape
             page_counter = self.get_valid_input()
 
-            for page_number in range(page_counter, self.total_pages):
+            for page_number in range(page_counter, self.total_pages + 1):
                 page_link = self.pages_link[page_number - 1]
                 print(f"\nScraping page link: {page_link}")
                 print(f"Scraping page number: {page_counter}")
