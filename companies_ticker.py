@@ -14,7 +14,7 @@ class CompanyData:
     def __init__(self):
         """Initialize the link and tags attributes """
         # Enter link from companiesmarketcap to scrape data
-        self.link = input("Link to scrape CompaniesMarketcap: ").strip().lower()
+        self.link = 'https://companiesmarketcap.com/'
         # Predefined tags to scrape from
         self.tags = {
             "Name" : "company-name",
@@ -30,10 +30,10 @@ class CompanyData:
         """Getting total number of pages from the website"""
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(headless=False)
                 page = browser.new_page()
                 # Navigate to target url
-                page.goto(self.link)
+                page.goto(self.link, wait_until="domcontentloaded")
                 
                 # Wait for elements to appear
                 target = self.tags['Company_count']
@@ -68,11 +68,11 @@ class CompanyData:
         """Scraping the company name & ticker from the website"""
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(headless=False)
                 page = browser.new_page()
 
                 # Navigate to the target URL with timeout of 60 seconds
-                page.goto(page_link, timeout=60000)
+                page.goto(page_link, wait_until="domcontentloaded")
                 # Scraping company name and ticker
                 selector = f"div.{self.tags['Name']}, div.{self.tags['Ticker']}"
                 # Wait for elements to appear
@@ -212,6 +212,7 @@ class CompanyData:
     def main(self):
         """Running the full method to scrape and get data from yfinance"""
         try:
+            print(f"Scraping link {self.link}")
             print("\nStarting the scraper to get financial data\n")
             # Getting total number of pages
             self.get_total_pages()
